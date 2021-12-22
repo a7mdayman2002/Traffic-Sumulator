@@ -12,20 +12,13 @@ class Obstacle(Cell):
     def __init__(self, color: tuple[int, int, int]):
         super().__init__(color, isEmpty=False)
 
-    def __repr__(self):
-        return "OBSTACLE"
-
 class HRoad(Cell):
     def __init__(self, color: tuple[int, int, int], isEmpty: bool):
         super().__init__(color, isEmpty)
-    def __repr__(self):
-        return "HROAD"
 
 class VRoad(Cell):
     def __init__(self, color: tuple[int, int, int], isEmpty: bool):
         super().__init__(color, isEmpty)
-    def __repr__(self):
-        return "VROAD"
 
 class Grid:
     def __init__(self, rows: int, columns: int, element: Cell = None):
