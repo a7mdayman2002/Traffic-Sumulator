@@ -1,6 +1,5 @@
 from random import randint
-from pygame import Surface
-from pygame import draw
+from pygame import Surface, draw
 from numpy import ndarray
 
 class Cell:
@@ -8,17 +7,39 @@ class Cell:
         self.color = color
         self.isEmpty = isEmpty
 
-class Obstacle(Cell):
-    def __init__(self, color: tuple[int, int, int]):
-        super().__init__(color, isEmpty=False)
+    def draw(self, surface: Surface, x: int, y: int, scale: int):
+        draw.rect(surface, color=self.color, rect=(x * scale,
+                                                   y * scale,
+                                                   scale,
+                                                   scale))
 
 class HRoad(Cell):
-    def __init__(self, color: tuple[int, int, int], isEmpty: bool):
-        super().__init__(color, isEmpty)
+    def __init__(self, color: tuple[int, int, int]):
+        super().__init__(color, isEmpty=True)
+
+    def draw(self, surface: Surface, x: int, y: int, scale: int):
+        width = 0.75 * scale
+        x_shift = 0.125 * scale
+        height = 0.25 * scale
+        y_shift = 0.375 * scale
+        draw.rect(surface, color=self.color, rect=(x * scale + x_shift,
+                                                   y * scale + y_shift,
+                                                   width,
+                                                   height))
 
 class VRoad(Cell):
-    def __init__(self, color: tuple[int, int, int], isEmpty: bool):
-        super().__init__(color, isEmpty)
+    def __init__(self, color: tuple[int, int, int]):
+        super().__init__(color, isEmpty=True)
+
+    def draw(self, surface: Surface, x: int, y: int, scale: int):
+        width = 0.25 * scale
+        x_shift = 0.375 * scale
+        height = 0.75 * scale
+        y_shift = 0.125 * scale
+        draw.rect(surface, color=self.color, rect=(x * scale + x_shift,
+                                                   y * scale + y_shift,
+                                                   width,
+                                                   height))
 
 class Grid:
     def __init__(self, rows: int, columns: int, element: Cell = None):
@@ -35,22 +56,4 @@ class Grid:
     def draw(self, surface: Surface, scale: int):
         for y in range(self.rows):
             for x in range(self.columns):
-                cell = self.cells[y][x]
-                x_shift = 0
-                y_shift = 0
-                width = scale
-                height = scale
-                if isinstance(cell, HRoad):
-                    width = 0.75 * scale
-                    x_shift = 0.125 * scale
-                    height = 0.25 * scale
-                    y_shift = 0.375 * scale
-                elif isinstance(cell, VRoad):
-                    width = 0.25 * scale
-                    x_shift = 0.375 * scale
-                    height = 0.75 * scale
-                    y_shift = 0.125 * scale
-                draw.rect(surface, color=cell.color, rect=(x * scale + x_shift,
-                                                           y * scale + y_shift,
-                                                           width,
-                                                           height))
+                self.cells[y][x].draw(surface, x, y, scale)

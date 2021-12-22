@@ -5,9 +5,9 @@ pygame.display.set_caption("Traffic Simulator")
 
 WIDTH, HEIGHT = 1000, 600
 WHITE = (255, 255, 255)
-OBSTACLE = Obstacle(color=(0, 150, 0))
-HROAD = HRoad(color=WHITE, isEmpty=True)
-VROAD = VRoad(color=WHITE, isEmpty=True)
+OBSTACLE = Cell(color=(0, 150, 0), isEmpty=False)
+HROAD = HRoad(color=WHITE)
+VROAD = VRoad(color=WHITE)
 grid = Grid(rows=6, columns=10, element=OBSTACLE)
 grid.fillWith(element=HROAD, rows=(2, 3), columns=(0, 9))
 grid.fillWith(element=VROAD, rows=(0, 1), columns=(3, 3))
