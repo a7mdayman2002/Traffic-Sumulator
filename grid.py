@@ -54,6 +54,6 @@ class Grid:
                 self.cells[x][y] = element
 
     def draw(self, surface, scale):
-        for y in range(self.rows):
-            for x in range(self.columns):
-                self.cells[y][x].draw(surface, x, y, scale)
+        for x in range(self.rows):
+            for y in range(self.columns):
+                self.cells[y][x].draw(surface, y, x, scale)
