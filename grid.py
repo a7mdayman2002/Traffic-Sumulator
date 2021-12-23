@@ -2,6 +2,7 @@ from random import randint
 from pygame import draw
 from numpy import ndarray
 
+
 class Cell:
     def __init__(self, color, isEmpty):
         self.color = color
@@ -12,6 +13,7 @@ class Cell:
                                                    y * scale,
                                                    scale,
                                                    scale))
+
 
 class HRoad(Cell):
     def __init__(self, color):
@@ -27,6 +29,7 @@ class HRoad(Cell):
                                                    width,
                                                    height))
 
+
 class VRoad(Cell):
     def __init__(self, color):
         super().__init__(color, isEmpty=True)
@@ -41,6 +44,7 @@ class VRoad(Cell):
                                                    width,
                                                    height))
 
+
 class Grid:
     def __init__(self, rows, columns, element):
         self.rows = rows
@@ -48,7 +52,7 @@ class Grid:
         self.cells = ndarray(shape=(rows, columns), dtype=Cell)
         self.cells.fill(element)
 
-    def fillWith(self, element, rows, columns):
+    def fill_with(self, element, rows, columns):
         for x in range(rows[0], rows[1] + 1):
             for y in range(columns[0], columns[1] + 1):
                 self.cells[x][y] = element
