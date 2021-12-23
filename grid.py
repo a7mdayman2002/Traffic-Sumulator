@@ -61,3 +61,21 @@ class Grid:
         for x in range(self.rows):
             for y in range(self.columns):
                 self.cells[x][y].draw(surface, y, x, scale)
+
+    def get_V_neighbours(self, x, y):
+        total = 0
+        for n in range(1, 3):
+           index = x + n
+           if index <= self.rows:
+               total += self.Cell[index][y]
+
+        return total
+
+    def get_H_neighbours(self, x, y):
+        total = 0
+        for n in range(1, 3):
+            index = y + n
+            if index <= self.columns:
+                total += self.Cell[x][index]
+
+        return total
