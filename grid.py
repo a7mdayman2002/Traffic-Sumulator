@@ -4,9 +4,9 @@ from numpy import ndarray
 
 
 class Cell:
-    def __init__(self, color, isEmpty):
+    def __init__(self, color, empty):
         self.color = color
-        self.isEmpty = isEmpty
+        self.isEmpty = empty
 
     def draw(self, surface, x, y, scale):
         draw.rect(surface, color=self.color, rect=(x * scale,
@@ -17,7 +17,7 @@ class Cell:
 
 class HRoad(Cell):
     def __init__(self, color):
-        super().__init__(color, isEmpty=True)
+        super().__init__(color, empty=True)
 
     def draw(self, surface, x, y, scale):
         width = 0.75 * scale
@@ -32,7 +32,7 @@ class HRoad(Cell):
 
 class VRoad(Cell):
     def __init__(self, color):
-        super().__init__(color, isEmpty=True)
+        super().__init__(color, empty=True)
 
     def draw(self, surface, x, y, scale):
         width = 0.25 * scale
@@ -52,7 +52,7 @@ class Grid:
         self.cells = ndarray(shape=(rows, columns), dtype=Cell)
         self.cells.fill(element)
 
-    def fill_with(self, element, rows, columns):
+    def fill(self, element, rows, columns):
         for x in range(rows[0], rows[1] + 1):
             for y in range(columns[0], columns[1] + 1):
                 self.cells[x][y] = element

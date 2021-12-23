@@ -5,14 +5,14 @@ pygame.display.set_caption("Traffic Simulator")
 
 WIDTH, HEIGHT = 1000, 600
 WHITE = (255, 255, 255)
-OBSTACLE = Cell(color=(0, 100, 0), isEmpty=False)
+OBSTACLE = Cell(color=(0, 100, 0), empty=False)
 HROAD = HRoad(color=WHITE)
 VROAD = VRoad(color=WHITE)
 grid = Grid(rows=6, columns=10, element=OBSTACLE)
-grid.fillWith(element=HROAD, rows=(2, 3), columns=(0, 9))
-grid.fillWith(element=VROAD, rows=(0, 1), columns=(3, 3))
-grid.fillWith(element=VROAD, rows=(0, 1), columns=(6, 7))
-grid.fillWith(element=VROAD, rows=(4, 5), columns=(4, 5))
+grid.fill(element=HROAD, rows=(2, 3), columns=(0, 9))
+grid.fill(element=VROAD, rows=(0, 1), columns=(3, 3))
+grid.fill(element=VROAD, rows=(0, 1), columns=(6, 7))
+grid.fill(element=VROAD, rows=(4, 5), columns=(4, 5))
 
 surface = pygame.display.set_mode((WIDTH, HEIGHT))
 FPS = 60
