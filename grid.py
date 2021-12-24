@@ -1,12 +1,13 @@
-from random import randint
 from pygame import draw
 from numpy import ndarray
+from numpy.random import choice
+from random import randint
 
 
 class Cell:
-    def __init__(self, color, empty):
+    def __init__(self, color, state):
         self.color = color
-        self.isEmpty = empty
+        self.state = state
 
     def draw(self, surface, x, y, scale):
         draw.rect(surface, color=self.color, rect=(x * scale,
@@ -16,8 +17,10 @@ class Cell:
 
 
 class HRoad(Cell):
-    def __init__(self, color):
-        super().__init__(color, empty=True)
+    def __init__(self, color, state, orientation):
+        super().__init__(color, state)
+        self.state = state
+        self.orientation = orientation  # orientation == 1 means right, -1 means left
 
     def draw(self, surface, x, y, scale):
         width = 0.75 * scale
@@ -29,10 +32,15 @@ class HRoad(Cell):
                                                    width,
                                                    height))
 
+    def __copy__(self):
+        return HRoad(self.color, self.state, self.orientation)
+
 
 class VRoad(Cell):
-    def __init__(self, color):
-        super().__init__(color, empty=True)
+    def __init__(self, color, state, orientation):
+        super().__init__(color, state)
+        self.state = state
+        self.orientation = orientation  # orientation == 1 means down, -1 means up
 
     def draw(self, surface, x, y, scale):
         width = 0.25 * scale
@@ -44,6 +52,9 @@ class VRoad(Cell):
                                                    width,
                                                    height))
 
+    def __copy__(self):
+        return VRoad(self.color, self.state, self.orientation)
+
 
 class Grid:
     def __init__(self, rows, columns, element):
@@ -52,30 +63,94 @@ class Grid:
         self.cells = ndarray(shape=(rows, columns), dtype=Cell)
         self.cells.fill(element)
 
-    def fill(self, element, rows, columns):
-        for x in range(rows[0], rows[1] + 1):
-            for y in range(columns[0], columns[1] + 1):
-                self.cells[x][y] = element
-
     def draw(self, surface, scale):
-        for x in range(self.rows):
-            for y in range(self.columns):
-                self.cells[x][y].draw(surface, y, x, scale)
+        for y in range(self.rows):
+            for x in range(self.columns):
+                self.cells[y][x].draw(surface, x, y, scale)
 
-    def get_V_neighbours(self, x, y):
-        total = 0
+    def fill(self, element, rows, columns):
+        for y in range(rows[0], rows[1] + 1):
+            for x in range(columns[0], columns[1] + 1):
+                self.cells[y][x] = element.__copy__()
+
+    def fill_randomly(self):
+        for y in range(self.rows):
+            for x in range(self.columns):
+                cell = self.cells[y][x]
+                alive = choice([True, False], p=[0.5, 0.5])
+                if isinstance(cell, (HRoad, VRoad)) and alive:
+                    self.insert(y, x)
+
+    def free(self, y, x):
+        cell = self.cells[y][x]
+        if isinstance(cell, (HRoad, VRoad)):
+            cell.state = 0
+            cell.color = (255, 255, 255)
+
+    def insert(self, y, x, color=None):
+        cell = self.cells[y][x]
+        if cell.state == 0:
+            cell.state = 1
+            if color is None:
+                r = randint(50, 150)
+                g = randint(50, 150)
+                b = randint(50, 150)
+                color = (r, g, b)
+            cell.color = color
+
+    def h_neighbours(self, y, x, orientation):
+        neighbours = 0
         for n in range(1, 3):
-           index = x + n
-           if index <= self.rows:
-               total += self.Cell[index][y]
+            next_x = x + orientation * n
+            if 0 <= next_x < self.columns:
+                cell = self.cells[y][next_x]
+                if cell.state == 1:
+                    neighbours += 1
+        return neighbours
 
-        return total
-
-    def get_H_neighbours(self, x, y):
-        total = 0
+    def v_neighbours(self, y, x, orientation):
+        neighbours = 0
         for n in range(1, 3):
-            index = y + n
-            if index <= self.columns:
-                total += self.Cell[x][index]
+            next_y = y + orientation * n
+            if 0 <= next_y < self.rows:
+                cell = self.cells[next_y][x]
+                if cell.state == 1:
+                    neighbours += 1
+        return neighbours
 
-        return total
+    def next_state(self):
+        cells = self.cells
+        was_moved = ndarray(shape=cells.shape, dtype=bool)
+        was_moved.fill(False)
+        r = self.rows
+        c = self.columns
+        for y in range(r):
+            for x in range(c):
+                current = cells[y][x]
+                if isinstance(current, (HRoad, VRoad)):
+                    o = current.orientation
+                    if current.state == 1 and not was_moved[y][x]:
+                        next_x, next_y = x, y
+                        if isinstance(current, HRoad):
+                            next_x += o
+                        else:
+                            next_y += o
+                        if 0 <= next_x < c and 0 <= next_y < r:
+                            next_cell = cells[next_y][next_x]
+                            if next_cell.state == 0:
+                                self.insert(next_y, next_x, current.color)
+                                self.free(y, x)
+                                was_moved[next_y][next_x] = True
+                                was_moved[y][x] = False
+                        else:
+                            self.free(y, x)
+                            was_moved[y][x] = False
+                    elif current.state == 0:
+                        alive = choice([True, False], p=[0.5, 0.5])
+                        if alive:
+                            if isinstance(current, VRoad):
+                                if y == 0 and o == 1 or y == r - 1 and o == -1:
+                                    self.insert(y, x)
+                            else:
+                                if x == 0 and o == 1 or x == c - 1 and o == -1:
+                                    self.insert(y, x)
