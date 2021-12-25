@@ -141,10 +141,8 @@ class Grid:
                                 self.insert(next_y, next_x, current.color)
                                 self.free(y, x)
                                 was_moved[next_y][next_x] = True
-                                was_moved[y][x] = False
                         else:
                             self.free(y, x)
-                            was_moved[y][x] = False
                     elif current.state == 0:
                         alive = choice([True, False], p=[0.5, 0.5])
                         if alive:
