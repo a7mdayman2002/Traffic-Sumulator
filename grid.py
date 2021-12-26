@@ -157,7 +157,7 @@ class Grid:
 
 # method for actually moving the car to the next state
     def next_state(self):
-        cells = self.cells
+        cells = self.cells.copy()
         # we initialized a boolean array to keep track if a car was moved before, by default set to false
         was_moved = ndarray(shape=cells.shape, dtype=bool)
         was_moved.fill(False)
@@ -175,7 +175,7 @@ class Grid:
                         next_x, next_y = x, y
                     # these if, else make the car move one step in its direction
                         if isinstance(current, HRoad):
-                            #speed part
+                            # speed part
                             next_x += o*(3-self.h_neighbours(y, x, o))
                         else:
                             next_y += o*(3-self.v_neighbours(y, x, o))
