@@ -1,8 +1,6 @@
 import pygame
 from grid import *
 
-
-#lol
 CLOCK = pygame.time.Clock()
 FPS = 60
 SCALE = 100
@@ -26,7 +24,6 @@ grid.fill(RIGHT_ROAD, rows=(2, 2), columns=(0, 9))
 grid.fill(LEFT_ROAD, rows=(3, 3), columns=(0, 9))
 grid.fill(UP_ROAD, rows = (4, 5), columns=(3, 3))
 grid.fill_randomly()
-
 
 pygame.display.set_caption("Traffic Simulator")
 surface = pygame.display.set_mode((WIDTH, HEIGHT))

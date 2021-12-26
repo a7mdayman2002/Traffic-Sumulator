@@ -62,6 +62,7 @@ class Grid:
         self.columns = columns
         self.cells = ndarray(shape=(rows, columns), dtype=Cell)
         self.cells.fill(element)
+        self.n = 0
 
     def draw(self, surface, scale):
         for y in range(self.rows):
@@ -92,10 +93,20 @@ class Grid:
         if cell.state == 0:
             cell.state = 1
             if color is None:
-                r = randint(50, 150)
-                g = randint(50, 150)
-                b = randint(50, 150)
-                color = (r, g, b)
+                self.n = (self.n + 1) % 8
+                colors = [(0, 186, 153),
+                          (255, 0, 0),
+                          (0, 255, 0),
+                          (0, 0, 255),
+                          (254, 149, 0),
+                          (64, 100, 55),
+                          (206, 100, 50),
+                          (176, 100, 50)]
+                color = colors[self.n]
+                # r = randint(50, 150)
+                # g = randint(50, 150)
+                # b = randint(50, 150)
+                # color = (r, g, b)
             cell.color = color
 
     def h_neighbours(self, y, x, orientation):
