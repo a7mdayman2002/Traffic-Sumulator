@@ -1,6 +1,8 @@
 import pygame
 from grid import *
 
+
+#lol
 CLOCK = pygame.time.Clock()
 FPS = 60
 SCALE = 100
