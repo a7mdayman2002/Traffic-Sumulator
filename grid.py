@@ -132,7 +132,9 @@ class Grid:
 
     # calculating the neighbours horizontally 3 cells ahead
     def h_neighbours(self, grid, y, x, orientation):
-        neighbours = 0
+        neighbour = ndarray(shape=(1, 4), dtype=int)
+        neighbour.fill(0)
+        move = 0
         for n in range(1, 3):
             # multiplied by orientation to change the direction
             # (if it's -1, then stepping back or going other direction)
@@ -141,19 +143,34 @@ class Grid:
             if 0 <= next_x < self.columns:
                 cell = grid[y][next_x]
                 if cell.state == 1:
-                    neighbours += 1
-        return neighbours
+                    neighbour[0][n] = 1
+
+        if neighbour[0][1] == 0:
+            move += 1
+            if neighbour[0][2] == 0:
+                move += 1
+                if neighbour[0][3] == 0:
+                    move += 1
+        return move
 
 # same as H_neighbours
     def v_neighbours(self, grid, y, x, orientation):
-        neighbours = 0
-        for n in range(1, 3):
+        neighbour = ndarray(shape=(1, 4), dtype=int)
+        neighbour.fill(0)
+        move = 0
+        for n in range(2, 1, -1):
             next_y = y + orientation * n
             if 0 <= next_y < self.rows:
                 cell = grid[next_y][x]
                 if cell.state == 1:
-                    neighbours += 1
-        return neighbours
+                    neighbour[0][n] = 1
+
+        if neighbour[0][1] == 0:
+            move += 1
+        if neighbour[0][2] == 0:
+            move += 1
+
+        return move
 
 # method for actually moving the car to the next state
     def next_state(self):
@@ -176,9 +193,9 @@ class Grid:
                     # these if, else make the car move one step in its direction
                         if isinstance(current, HRoad):
                             # speed part
-                            next_x += o*(3-self.h_neighbours(cells, y, x, o))
+                            next_x += (o*self.h_neighbours(cells, y, x, o))
                         else:
-                            next_y += o*(3-self.v_neighbours(cells, y, x, o))
+                            next_y += (o)
                         # if the next step exists on grid and is empty, free the current cell and move the car
                         # set its boolean to True
                         if 0 <= next_x < c and 0 <= next_y < r:

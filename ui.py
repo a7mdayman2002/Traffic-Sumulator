@@ -2,7 +2,7 @@ import pygame
 from grid import *
 
 CLOCK = pygame.time.Clock()
-FPS = 60
+FPS = 2
 SCALE = 100
 WIDTH, HEIGHT = 1000, 600
 
@@ -28,7 +28,7 @@ grid.fill_randomly()
 pygame.display.set_caption("Traffic Simulator")
 surface = pygame.display.set_mode((WIDTH, HEIGHT))
 run = True
-pause = True
+pause = False
 while run:
     CLOCK.tick(FPS)
     for event in pygame.event.get():
@@ -39,6 +39,8 @@ while run:
             if event.key == pygame.K_ESCAPE:
                 run = False
             elif event.key == pygame.K_SPACE:
+                pause = not pause
+            elif pause and event.key == pygame.K_n:
                 grid.next_state()
         elif mouse_press[0] or mouse_press[2]:
             x, y = pygame.mouse.get_pos()
@@ -49,6 +51,8 @@ while run:
                 grid.insert(y, x)
             else:
                 grid.free(y, x)
+    if not pause:
+        grid.next_state()
     grid.draw(surface, SCALE)
     pygame.display.update()
 
