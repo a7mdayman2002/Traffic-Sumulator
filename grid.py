@@ -131,7 +131,7 @@ class Grid:
             cell.color = color
 
     # calculating the neighbours horizontally 3 cells ahead
-    def h_neighbours(self, y, x, orientation):
+    def h_neighbours(self, grid, y, x, orientation):
         neighbours = 0
         for n in range(1, 3):
             # multiplied by orientation to change the direction
@@ -139,18 +139,18 @@ class Grid:
             next_x = x + orientation * n
             # if next car is found within range of visible road, and its state =1 , add it to neighbors
             if 0 <= next_x < self.columns:
-                cell = self.cells[y][next_x]
+                cell = grid[y][next_x]
                 if cell.state == 1:
                     neighbours += 1
         return neighbours
 
 # same as H_neighbours
-    def v_neighbours(self, y, x, orientation):
+    def v_neighbours(self, grid, y, x, orientation):
         neighbours = 0
         for n in range(1, 3):
             next_y = y + orientation * n
             if 0 <= next_y < self.rows:
-                cell = self.cells[next_y][x]
+                cell = grid[next_y][x]
                 if cell.state == 1:
                     neighbours += 1
         return neighbours
@@ -176,9 +176,9 @@ class Grid:
                     # these if, else make the car move one step in its direction
                         if isinstance(current, HRoad):
                             # speed part
-                            next_x += o*(3-self.h_neighbours(y, x, o))
+                            next_x += o*(3-self.h_neighbours(cells, y, x, o))
                         else:
-                            next_y += o*(3-self.v_neighbours(y, x, o))
+                            next_y += o*(3-self.v_neighbours(cells, y, x, o))
                         # if the next step exists on grid and is empty, free the current cell and move the car
                         # set its boolean to True
                         if 0 <= next_x < c and 0 <= next_y < r:
