@@ -175,7 +175,7 @@ class Grid:
                         next_x, next_y = x, y
                     # these if, else make the car move one step in its direction
                         if isinstance(current, HRoad):
-                            #speed part
+                            # speed part
                             next_x += o*(3-self.h_neighbours(y, x, o))
                         else:
                             next_y += o*(3-self.v_neighbours(y, x, o))
