@@ -67,6 +67,15 @@ class VRoad(Cell):
         return VRoad(self.color, self.state, self.orientation)
 
 
+class Junction(HRoad):
+    def __init__(self, color, state, orientation):
+        super().__init__(color, state, orientation)
+
+    def to_be_moved(self, Hcell, Vcell):
+        current = choice([Hcell, Vcell], p=[0.5, 0.5])
+        return current
+
+
 # here we create the grid, it consists of : rows, columns and array of cells filled with cell kind
 # (normal **OBSTACLE**, VRoad, HRoad)
 class Grid:
@@ -130,10 +139,19 @@ class Grid:
                 # color = (r, g, b)
             cell.color = color
 
+    def define_Junctions(self):
+        jcell = None
+        for y in range(self.rows):
+            for x in range(self.columns):
+                if isinstance(self.cells[y][x+1] or self.cells[y][x-1], HRoad) and isinstance(self.cells[y][x], VRoad):
+                    if isinstance(self.cells[y][x+1], HRoad):
+                        jcell = self.cells[y][x+1]
+                    else:
+                        jcell = self.cells[y][x-1]
+                    Junction(jcell.color, jcell.state, jcell.orientation)
+
     # calculating the neighbours horizontally 3 cells ahead
-    def h_neighbours(self, grid, y, x, orientation):
-        neighbour = ndarray(shape=(1, 4), dtype=int)
-        neighbour.fill(0)
+    def h_move(self, grid, y, x, orientation):
         move = 0
         for n in range(1, 3):
             # multiplied by orientation to change the direction
@@ -143,33 +161,28 @@ class Grid:
             if 0 <= next_x < self.columns:
                 cell = grid[y][next_x]
                 if cell.state == 1:
-                    neighbour[0][n] = 1
-
-        if neighbour[0][1] == 0:
-            move += 1
-            if neighbour[0][2] == 0:
-                move += 1
-                if neighbour[0][3] == 0:
+                    break
+                else:
                     move += 1
+            else:
+                return 1
+
         return move
 
 # same as H_neighbours
-    def v_neighbours(self, grid, y, x, orientation):
-        neighbour = ndarray(shape=(1, 4), dtype=int)
-        neighbour.fill(0)
+    def v_move(self, grid, y, x, orientation):
         move = 0
         for n in range(2, 1, -1):
             next_y = y + orientation * n
             if 0 <= next_y < self.rows:
                 cell = grid[next_y][x]
                 if cell.state == 1:
-                    neighbour[0][n] = 1
-
-        if neighbour[0][1] == 0:
-            move += 1
-        if neighbour[0][2] == 0:
-            move += 1
-
+                    break
+                elif isinstance(cell, HRoad):
+                    move += 1
+                    break
+                else:
+                    move += 1
         return move
 
 # method for actually moving the car to the next state
@@ -193,7 +206,7 @@ class Grid:
                     # these if, else make the car move one step in its direction
                         if isinstance(current, HRoad):
                             # speed part
-                            next_x += (o*self.h_neighbours(cells, y, x, o))
+                            next_x += (o*self.h_move(cells, y, x, o))
                         else:
                             next_y += (o)
                         # if the next step exists on grid and is empty, free the current cell and move the car
@@ -210,7 +223,7 @@ class Grid:
                     # if the cell is empty make a choice to exist one or not
                     # with conditions at the start of the street
                     elif current.state == 0:
-                        alive = choice([True, False], p=[0.5, 0.5])
+                        alive = choice([True, False], p=[0.2, 0.8])
                         if alive:
                             if isinstance(current, VRoad):
                                 if y == 0 and o == 1 or y == r - 1 and o == -1:
