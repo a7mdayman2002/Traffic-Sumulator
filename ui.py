@@ -21,6 +21,7 @@ DOWN_ROAD = VRoad(color=WHITE, state=0, orientation=1)
 
 grid = Grid(rows=6, columns=10, element=BLACK_OBSTACLE)
 
+
 pygame.display.set_caption("Traffic Simulator")
 surface = pygame.display.set_mode((WIDTH, HEIGHT))
 run = True
