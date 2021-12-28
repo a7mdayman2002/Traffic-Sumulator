@@ -85,22 +85,6 @@ class Grid:
             for x in range(self.columns):
                 self.cells[y][x].draw(surface, x, y, scale)
 
-    # this is for initializing same cell repeatedly and thus keeping its color unchanged case of randomizing
-    def fill(self, element, rows, columns):
-        for y in range(rows[0], rows[1] + 1):
-            for x in range(columns[0], columns[1] + 1):
-                self.cells[y][x] = element.__copy__()
-
-    # this fills the grid randomly at start, to randomly choose if a certain cell should be filled with a car or not
-    def fill_randomly(self):
-        for y in range(self.rows):
-            for x in range(self.columns):
-                cell = self.cells[y][x]
-                alive = choice([True, False], p=[0.5, 0.5])
-                # a statement to make sure that the selected cell is either HRoad or VRoad -- not an OBSTACLE !
-                if isinstance(cell, (HRoad, VRoad)) and alive:
-                    self.insert(y, x)
-
     # when cell moves, we free its previous cell
     def free(self, y, x):
         cell = self.cells[y][x]
@@ -124,57 +108,46 @@ class Grid:
                           (206, 100, 50),
                           (176, 100, 50)]
                 color = colors[self.n]
-                # r = randint(50, 150)
-                # g = randint(50, 150)
-                # b = randint(50, 150)
-                # color = (r, g, b)
             cell.color = color
 
-    # calculating the neighbours horizontally 3 cells ahead
-    def h_neighbours(self, grid, y, x, orientation):
-        neighbour = ndarray(shape=(1, 4), dtype=int)
-        neighbour.fill(0)
-        move = 0
+    # this fills the grid randomly at start, to randomly choose if a certain cell should be filled with a car or not
+    def fill_randomly(self):
+        for y in range(self.rows):
+            for x in range(self.columns):
+                cell = self.cells[y][x]
+                alive = choice([True, False], p=[0.25, 0.75])
+                # a statement to make sure that the selected cell is either HRoad or VRoad -- not an OBSTACLE !
+                if isinstance(cell, (HRoad, VRoad)) and alive:
+                    self.insert(y, x)
+
+    # this fills the grid randomly at start, to randomly choose if a certain cell should be filled with a car or not
+    def clear(self):
+        for y in range(self.rows):
+            for x in range(self.columns):
+                self.cells[y][x] = Cell(color=(0, 0, 0), state=1)
+
+    # calculating the moves horizontally 2 cells ahead
+    def h_moves(self, y, x, orientation):
+        moves = 0
         for n in range(1, 3):
             # multiplied by orientation to change the direction
             # (if it's -1, then stepping back or going other direction)
             next_x = x + orientation * n
             # if next car is found within range of visible road, and its state =1 , add it to neighbors
             if 0 <= next_x < self.columns:
-                cell = grid[y][next_x]
+                cell = self.cells[y][next_x]
                 if cell.state == 1:
-                    neighbour[0][n] = 1
-
-        if neighbour[0][1] == 0:
-            move += 1
-            if neighbour[0][2] == 0:
-                move += 1
-                if neighbour[0][3] == 0:
-                    move += 1
-        return move
-
-# same as H_neighbours
-    def v_neighbours(self, grid, y, x, orientation):
-        neighbour = ndarray(shape=(1, 4), dtype=int)
-        neighbour.fill(0)
-        move = 0
-        for n in range(2, 1, -1):
-            next_y = y + orientation * n
-            if 0 <= next_y < self.rows:
-                cell = grid[next_y][x]
-                if cell.state == 1:
-                    neighbour[0][n] = 1
-
-        if neighbour[0][1] == 0:
-            move += 1
-        if neighbour[0][2] == 0:
-            move += 1
-
-        return move
+                    break
+                moves += 1
+                if isinstance(cell, VRoad):
+                    break
+            else:
+                return 1
+        return moves
 
 # method for actually moving the car to the next state
     def next_state(self):
-        cells = self.cells.copy()
+        cells = self.cells
         # we initialized a boolean array to keep track if a car was moved before, by default set to false
         was_moved = ndarray(shape=cells.shape, dtype=bool)
         was_moved.fill(False)
@@ -193,9 +166,9 @@ class Grid:
                     # these if, else make the car move one step in its direction
                         if isinstance(current, HRoad):
                             # speed part
-                            next_x += (o*self.h_neighbours(cells, y, x, o))
+                            next_x += o * self.h_moves(y, x, o)
                         else:
-                            next_y += (o)
+                            next_y += o
                         # if the next step exists on grid and is empty, free the current cell and move the car
                         # set its boolean to True
                         if 0 <= next_x < c and 0 <= next_y < r:
@@ -210,7 +183,7 @@ class Grid:
                     # if the cell is empty make a choice to exist one or not
                     # with conditions at the start of the street
                     elif current.state == 0:
-                        alive = choice([True, False], p=[0.5, 0.5])
+                        alive = choice([True, False], p=[0.25, 0.75])
                         if alive:
                             if isinstance(current, VRoad):
                                 if y == 0 and o == 1 or y == r - 1 and o == -1:
