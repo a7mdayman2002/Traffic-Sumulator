@@ -1,4 +1,4 @@
-from ui import  *
+from ui import *
 
 amb1 = pygame.image.load("amb-down.png")
 amb2 = pygame.image.load("amb-left.png")
