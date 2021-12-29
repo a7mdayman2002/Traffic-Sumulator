@@ -1,29 +1,22 @@
 from grid import *
 
 CLOCK = pygame.time.Clock()
-FPS = 1
-SCALE = 100
-WIDTH, HEIGHT = 1000, 600
-
+FPS = 5
+WIDTH, HEIGHT = 1200, 650
 BLACK = (0, 0, 0)
-GREEN = (0, 100, 0)
 
-GREEN_OBSTACLE = Cell(color=GREEN, state=1)
-BLACK_OBSTACLE = Cell(color=BLACK, state=1)
-LEFT_ROAD = HRoad(state=0, orientation=-1)
-RIGHT_ROAD = HRoad(state=0, orientation=1)
-UP_ROAD = VRoad(state=0, orientation=-1)
-DOWN_ROAD = VRoad(state=0, orientation=1)
-
-grid = Grid(rows=6, columns=10, scale=SCALE, obstacle=GREEN_OBSTACLE)
-grid.fill(DOWN_ROAD, rows=(0, 1), columns=(1, 1))
-grid.fill(DOWN_ROAD, rows=(0, 1), columns=(5, 5))
-grid.fill(RIGHT_ROAD, rows=(2, 2), columns=(0, 9))
-grid.fill(LEFT_ROAD, rows=(3, 3), columns=(0, 9))
-grid.fill(UP_ROAD, rows=(4, 5), columns=(3, 3))
+grid = Grid(rows=13, columns=24, obstacle=GREEN_OBSTACLE)
+grid.fill(DOWN_ROAD, rows=(0, 3), columns=(4, 4))
+grid.fill(DOWN_ROAD, rows=(0, 3), columns=(14, 14))
+grid.fill(LEFT_ROAD, rows=(4, 4), columns=(0, 23))
+grid.fill(RIGHT_ROAD, rows=(6, 6), columns=(0, 23))
+grid.fill(LEFT_ROAD, rows=(8, 8), columns=(0, 23))
+grid.fill(UP_ROAD, rows=(9, 12), columns=(8, 8))
+grid.fill(UP_ROAD, rows=(9, 12), columns=(19, 19))
 
 pygame.display.set_caption("Traffic Simulator")
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
+SCALE = grid.get_scale(screen)
 run = True
 pause = True
 mouse_action = None
@@ -48,7 +41,7 @@ while run:
                 elif key == pygame.K_r:
                     grid.fill_randomly_with_cars(p=0.25)
                 elif key == pygame.K_TAB:
-                    grid.cells.fill(BLACK_OBSTACLE)
+                    grid.cells.fill(GREEN_OBSTACLE)
                 elif key == pygame.K_UP:
                     mouse_action = "V-1"
                 elif key == pygame.K_DOWN:
@@ -76,7 +69,10 @@ while run:
                 elif mouse_action == "G":
                     grid.cells[y][x] = GREEN_OBSTACLE
             else:
-                grid.cells[y][x] = BLACK_OBSTACLE
+                if cell.state == 0:
+                    grid.insert_car(y, x)
+                else:
+                    grid.remove_car(y, x)
     if not pause:
         grid.next_state()
     grid.draw(screen)

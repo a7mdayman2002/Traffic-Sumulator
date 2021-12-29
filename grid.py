@@ -3,6 +3,7 @@ from numpy import ndarray
 from numpy.random import choice
 
 WHITE = (255, 255, 255)
+GREEN = (0, 100, 0)
 
 # Creates a cell with a color and state.
 # When state = 1, this means that cell is filled, o.w. it is empty.
@@ -43,36 +44,43 @@ class VRoad(Cell):
     def __copy__(self):
         return VRoad(self.state, self.orientation, self.image)
 
+GREEN_OBSTACLE = Cell(color=GREEN, state=1)
+LEFT_ROAD = HRoad(state=0, orientation=-1)
+RIGHT_ROAD = HRoad(state=0, orientation=1)
+UP_ROAD = VRoad(state=0, orientation=-1)
+DOWN_ROAD = VRoad(state=0, orientation=1)
 
 # Here we create the grid, it consists of: rows, columns and a 2D array of cells.
 # (normal **OBSTACLE**, VRoad, HRoad)
 class Grid:
-    def __init__(self, rows, columns, scale, obstacle):
+    def __init__(self, rows, columns, obstacle=GREEN_OBSTACLE):
         self.rows = rows
         self.columns = columns
-        self.scale = scale
         self.cells = ndarray(shape=(rows, columns), dtype=Cell)
         self.cells.fill(obstacle)
 
+    def get_scale(self, screen):
+        return screen.get_width() // self.columns
+
     # This method loops over all the cells in the array and draws them on the screen.
     def draw(self, screen):
+        scale = self.get_scale(screen)
         for y in range(self.rows):
             for x in range(self.columns):
-                s = self.scale
                 cell = self.cells[y][x]
-                width = s
-                height = s
+                width = scale
+                height = scale
                 x_shift = 0
                 y_shift = 0
-                x_pos = x * s
-                y_pos = y * s
+                x_pos = x * scale
+                y_pos = y * scale
                 image = None
                 if isinstance(cell, (HRoad, VRoad)):
                     image = cell.image
                     width *= 0.7
                     height *= 0.2
-                    x_shift = 0.15 * s
-                    y_shift = 0.4 * s
+                    x_shift = 0.15 * scale
+                    y_shift = 0.4 * scale
                     if isinstance(cell, VRoad):
                         width, height = height, width
                         x_shift, y_shift = y_shift, x_shift
@@ -80,8 +88,8 @@ class Grid:
                                  color=cell.color,
                                  rect=(x_pos + x_shift, y_pos + y_shift, width, height))
                 if image is not None:
-                    w = image.get_width() * s / 250
-                    h = image.get_height() * s / 250
+                    w = image.get_width() * scale / 250
+                    h = image.get_height() * scale / 250
                     image = pygame.transform.scale(image, (w, h))
                     if isinstance(cell, HRoad):
                         if cell.orientation == -1:
@@ -107,7 +115,7 @@ class Grid:
                     "cars/taxi.png",
                     "cars/yellow.png"
                 ]
-                image = choice(images, p=[1/11, 3/11, 1/11, 3/11, 3/11])
+                image = choice(images, p=[1/17, 5/17, 1/17, 5/17, 5/17])
                 image = pygame.image.load(image)
             current.state = 1
             current.image = image
@@ -222,7 +230,7 @@ class Grid:
                             # The speed is determined by the number of steps of a car.
                             nx += h_moves(y, x, o)
                         else:
-                            ny += v_moves(y, x, o)
+                            ny += o  # v_moves(y, x, o)
                         # If the next step exists on grid and is empty, free the current cell and move the car.
                         # Set its move check to True.
                         if 0 <= nx < columns and 0 <= ny < rows:
