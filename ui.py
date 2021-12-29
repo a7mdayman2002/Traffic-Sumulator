@@ -1,4 +1,3 @@
-import pygame
 from grid import *
 
 CLOCK = pygame.time.Clock()
@@ -7,25 +6,16 @@ SCALE = 100
 WIDTH, HEIGHT = 1000, 600
 
 BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
 GREEN = (0, 100, 0)
 
 GREEN_OBSTACLE = Cell(color=GREEN, state=1)
 BLACK_OBSTACLE = Cell(color=BLACK, state=1)
-LEFT_ROAD = HRoad(color=WHITE, state=0, orientation=-1)
-RIGHT_ROAD = HRoad(color=WHITE, state=0, orientation=1)
-UP_ROAD = VRoad(color=WHITE, state=0, orientation=-1)
-DOWN_ROAD = VRoad(color=WHITE, state=0, orientation=1)
+LEFT_ROAD = HRoad(state=0, orientation=-1)
+RIGHT_ROAD = HRoad(state=0, orientation=1)
+UP_ROAD = VRoad(state=0, orientation=-1)
+DOWN_ROAD = VRoad(state=0, orientation=1)
 
-COP_RIGHT = pygame.image.load("cars/cop-right.png")
-AMB_RIGHT = pygame.image.load("cars/amb-right.png")
-TAXI_RIGHT = pygame.image.load("cars/taxi-right.png")
-YELLOW_RIGHT = pygame.image.load("cars/player-right.png")
-BLUE_RIGHT = pygame.image.load("cars/BlueCar-right.png")
-
-COP = pygame.transform.scale(COP_RIGHT,(250,225))
-
-grid = Grid(rows=6, columns=10, obstacle=GREEN_OBSTACLE)
+grid = Grid(rows=6, columns=10, scale=SCALE, obstacle=GREEN_OBSTACLE)
 grid.fill(DOWN_ROAD, rows=(0, 1), columns=(1, 1))
 grid.fill(DOWN_ROAD, rows=(0, 1), columns=(5, 5))
 grid.fill(RIGHT_ROAD, rows=(2, 2), columns=(0, 9))
@@ -33,13 +23,13 @@ grid.fill(LEFT_ROAD, rows=(3, 3), columns=(0, 9))
 grid.fill(UP_ROAD, rows=(4, 5), columns=(3, 3))
 
 pygame.display.set_caption("Traffic Simulator")
-surface = pygame.display.set_mode((WIDTH, HEIGHT))
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
 run = True
 pause = True
 mouse_action = None
 while run:
     CLOCK.tick(FPS)
-    surface.fill(BLACK)
+    screen.fill(BLACK)
     for event in pygame.event.get():
         mouse_press = pygame.mouse.get_pressed()
         if event.type == pygame.QUIT:
@@ -56,7 +46,7 @@ while run:
                 elif key == pygame.K_c:
                     grid.clear_cars()
                 elif key == pygame.K_r:
-                    grid.fill_with_cars()
+                    grid.fill_randomly_with_cars(p=0.25)
                 elif key == pygame.K_TAB:
                     grid.cells.fill(BLACK_OBSTACLE)
                 elif key == pygame.K_UP:
@@ -89,8 +79,7 @@ while run:
                 grid.cells[y][x] = BLACK_OBSTACLE
     if not pause:
         grid.next_state()
-    grid.draw(surface, SCALE)
-    surface.blit(COP,(250,250))
+    grid.draw(screen)
     pygame.display.update()
 
 pygame.quit()
