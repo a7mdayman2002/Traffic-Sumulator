@@ -62,22 +62,20 @@ class Grid:
                 cell = self.cells[y][x]
                 if isinstance(cell, (HRoad, VRoad)):
                     image = cell.image
-                    if image is None:
+                    if image is None or cell.state == 0:
                         width = 0.7 * s
-                        height = 0.2
+                        height = 0.2 * s
                         x_shift = 0.15 * s
                         y_shift = 0.4 * s
                         if isinstance(cell, VRoad):
-                            width, height = height, width
-                            x_shift, y_shift = y_shift, x_shift
-                        pygame.draw.rect(surface=screen, color=cell.color, rect=(x * s + x_shift,
-                                                                                 y * s + y_shift,
-                                                                                 width,
-                                                                                 height))
+                            width, height, x_shift, y_shift = height, width, y_shift, x_shift
+                        pygame.draw.rect(surface=screen,
+                                         color=cell.color,
+                                         rect=(x * s + x_shift, y * s + y_shift, width, height))
                     else:
-                        w = image.get_width() * s / 250
-                        h = image.get_height() * s / 250
-                        image = pygame.transform.scale(image, (w, h))
+                        w = image.get_width()
+                        h = image.get_height()
+                        image = pygame.transform.scale(image, (s * w / 250, s * h / 250))
                         if isinstance(cell, HRoad):
                             if cell.orientation == -1:
                                 image = pygame.transform.rotate(image, 180)
