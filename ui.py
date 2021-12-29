@@ -2,7 +2,7 @@ import pygame
 from grid import *
 
 CLOCK = pygame.time.Clock()
-FPS = 5
+FPS = 1
 SCALE = 100
 WIDTH, HEIGHT = 1000, 600
 

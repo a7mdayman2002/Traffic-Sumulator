@@ -146,25 +146,44 @@ class Grid:
 
     # Calculating the horizontal moves of a car, up to 2 cells ahead.
     def h_moves(self, y, x, orientation):
-        moves = 0
-        for n in range(1, 3):
-            # Multiplied by orientation to change the direction.
-            # If it's -1, then we step back or go in the opposite direction.
-            next_x = x + orientation * n
-            # Check if we can take a step.
-            if 0 <= next_x < self.columns:
-                cell = self.cells[y][next_x]
-                # If the next cell is occupied, break, else take a step.
-                if cell.state == 1:
-                    break
-                moves += 1
-                # If we step from an HRoad to a VRoad,
-                # don't take any more steps to avoid unrealistic jumps.
-                if isinstance(cell, VRoad):
-                    break
-            else:
-                # Take one step and let the algorithm remove the cell at the edge.
-                return 1
+        moves = orientation
+        # Take a step in the direction orientation.
+        next_x = x + orientation
+        # Check if we can take a step.
+        if 0 <= next_x < self.columns:
+            cell = self.cells[y][next_x]
+            # If we step from an HRoad to a VRoad,
+            # don't take any more steps to avoid unrealistic jumps.
+            if not isinstance(cell, VRoad):
+                # Take one more step.
+                next_x += orientation
+                if 0 <= next_x < self.columns:
+                    next_cell = self.cells[y][next_x]
+                    # If the next_cell is an empty HRoad, move another step.
+                    if isinstance(next_cell, HRoad) and next_cell.state == 0:
+                        moves += orientation
+        # Take a step and let the algorithm handle this case.
+        return moves
+
+    # Same as h_moves but for vertical.
+    def v_moves(self, y, x, orientation):
+        moves = orientation
+        # Take a step in the direction orientation.
+        next_y = y + orientation
+        # Check if we can take a step.
+        if 0 <= next_y < self.columns:
+            cell = self.cells[next_y][x]
+            # If we step from an VRoad to a HRoad,
+            # don't take any more steps to avoid unrealistic jumps.
+            if not isinstance(cell, VRoad):
+                # Take one more step.
+                next_y += orientation
+                if 0 <= next_y < self.columns:
+                    next_cell = self.cells[next_y][x]
+                    # If the next_cell is an empty HRoad, move another step.
+                    if isinstance(next_cell, VRoad) and next_cell.state == 0:
+                        moves += orientation
+        # Take a step and let the algorithm handle this case.
         return moves
 
     # Method for actually moving the cars to their next position.
@@ -187,11 +206,11 @@ class Grid:
                     if current.state == 1 and not was_moved[y][x]:
                         next_x, next_y = x, y
                         if isinstance(current, HRoad):
-                            # speed part
-                            next_x += o * self.h_moves(y, x, o)
+                            # The speed is determined by the number of steps of a car.
+                            next_x += self.h_moves(y, x, o)
                         else:
-                            next_y += o
-                        # If the next step exists on grid and is empty, free the current cell and move the car/
+                            next_y += self.v_moves(y, x, o)
+                        # If the next step exists on grid and is empty, free the current cell and move the car.
                         # Set its move check to True.
                         if 0 <= next_x < c and 0 <= next_y < r:
                             next_cell = cells[next_y][next_x]
