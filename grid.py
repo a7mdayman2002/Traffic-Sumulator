@@ -19,6 +19,9 @@ class Cell:
                                                    scale,
                                                    scale))
 
+    def __copy__(self):
+        return Cell(color=self.color, state=self.state)
+
 
 # HRoad and VRoad are both subclasses of Cell, (super(). is called in their __init__ )
 # They have extra field of orientation which is the road direction,
@@ -67,14 +70,14 @@ class VRoad(Cell):
         return VRoad(self.color, self.state, self.orientation)
 
 
-# here we create the grid, it consists of : rows, columns and array of cells filled with cell kind
+# here we create the grid, it consists of: rows, columns and array of cells filled with cell kind
 # (normal **OBSTACLE**, VRoad, HRoad)
 class Grid:
-    def __init__(self, rows, columns, element):
+    def __init__(self, rows, columns, obstacle):
         self.rows = rows
         self.columns = columns
         self.cells = ndarray(shape=(rows, columns), dtype=Cell)
-        self.cells.fill(element)
+        self.cells.fill(obstacle)
         self.n = 0  # pointer to control color randomizer
 
     # this method calls all cells in the array and allow them to be drawn, with the color initialized in them
@@ -86,14 +89,14 @@ class Grid:
                 self.cells[y][x].draw(surface, x, y, scale)
 
     # when cell moves, we free its previous cell
-    def free(self, y, x):
+    def remove_car(self, y, x):
         cell = self.cells[y][x]
         if isinstance(cell, (HRoad, VRoad)):
             cell.state = 0
             cell.color = (255, 255, 255)
 
-    # to insert a new cell in the grid, by changing its state to 1 and randomly choosing a color for it
-    def insert(self, y, x, color=None):
+    # to insert_car a new cell in the grid, by changing its state to 1 and randomly choosing a color for it
+    def insert_car(self, y, x, color=None):
         cell = self.cells[y][x]
         if cell.state == 0:
             cell.state = 1
@@ -110,21 +113,36 @@ class Grid:
                 color = colors[self.n]
             cell.color = color
 
+    # this is for initializing same cell repeatedly and thus keeping its color unchanged case of randomizing
+    def fill(self, element, rows, columns):
+        for y in range(rows[0], rows[1] + 1):
+            for x in range(columns[0], columns[1] + 1):
+                self.cells[y][x] = element.__copy__()
+
     # this fills the grid randomly at start, to randomly choose if a certain cell should be filled with a car or not
-    def fill_randomly(self):
+    def fill_with_cars(self):
         for y in range(self.rows):
             for x in range(self.columns):
                 cell = self.cells[y][x]
                 alive = choice([True, False], p=[0.25, 0.75])
                 # a statement to make sure that the selected cell is either HRoad or VRoad -- not an OBSTACLE !
                 if isinstance(cell, (HRoad, VRoad)) and alive:
-                    self.insert(y, x)
+                    self.insert_car(y, x)
 
     # this fills the grid randomly at start, to randomly choose if a certain cell should be filled with a car or not
-    def clear(self):
+    def clear_grid(self):
         for y in range(self.rows):
             for x in range(self.columns):
                 self.cells[y][x] = Cell(color=(0, 0, 0), state=1)
+
+    # this fills the grid randomly at start, to randomly choose if a certain cell should be filled with a car or not
+    def clear_cars(self):
+        for y in range(self.rows):
+            for x in range(self.columns):
+                cell = self.cells[y][x]
+                if isinstance(cell, (HRoad, VRoad)):
+                    cell.state = 0
+                    cell.color = (255, 255, 255)
 
     # calculating the moves horizontally 2 cells ahead
     def h_moves(self, y, x, orientation):
@@ -133,7 +151,7 @@ class Grid:
             # multiplied by orientation to change the direction
             # (if it's -1, then stepping back or going other direction)
             next_x = x + orientation * n
-            # if next car is found within range of visible road, and its state =1 , add it to neighbors
+            # if next car is found within range of visible road, and its state == 1, add it to neighbors
             if 0 <= next_x < self.columns:
                 cell = self.cells[y][next_x]
                 if cell.state == 1:
@@ -174,12 +192,12 @@ class Grid:
                         if 0 <= next_x < c and 0 <= next_y < r:
                             next_cell = cells[next_y][next_x]
                             if next_cell.state == 0:
-                                self.insert(next_y, next_x, current.color)
-                                self.free(y, x)
+                                self.insert_car(next_y, next_x, current.color)
+                                self.remove_car(y, x)
                                 was_moved[next_y][next_x] = True
                         # if doesn't exist, free the car
                         else:
-                            self.free(y, x)
+                            self.remove_car(y, x)
                     # if the cell is empty make a choice to exist one or not
                     # with conditions at the start of the street
                     elif current.state == 0:
@@ -187,7 +205,7 @@ class Grid:
                         if alive:
                             if isinstance(current, VRoad):
                                 if y == 0 and o == 1 or y == r - 1 and o == -1:
-                                    self.insert(y, x)
+                                    self.insert_car(y, x)
                             else:
                                 if x == 0 and o == 1 or x == c - 1 and o == -1:
-                                    self.insert(y, x)
+                                    self.insert_car(y, x)
