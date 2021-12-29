@@ -3,16 +3,16 @@ from numpy import ndarray
 from numpy.random import choice
 
 
-# creating a cell with a color and state
-# when state = 1, this means that cell is filled, o.w. empty
+# Creates a cell with a color and state.
+# When state = 1, this means that cell is filled, o.w. it is empty.
 class Cell:
     def __init__(self, color, state):
         self.color = color
         self.state = state
 
-    # we draw the cell here, the surface is the ui screen, x and y are the starting point of the cell
-    # we define the dimensions to be colored starting from that point, multiplied by its scale
-    # rect in draw.rect takes parameters (left, top, width, height)
+    # We draw the cell here, the surface is the ui screen, x and y are the starting point of the cell.
+    # We define the dimensions to be colored starting from that point, multiplied by its scale.
+    # rect in draw.rect takes the parameters (left, top, width, height).
     def draw(self, surface, x, y, scale):
         draw.rect(surface, color=self.color, rect=(x * scale,
                                                    y * scale,
@@ -23,16 +23,17 @@ class Cell:
         return Cell(color=self.color, state=self.state)
 
 
-# HRoad and VRoad are both subclasses of Cell, (super(). is called in their __init__ )
-# They have extra field of orientation which is the road direction,
-# In VRoad -1 for up, 1 for down
-# In HRoad -1 for left, 1 for right
+# HRoad and VRoad are both subclasses of Cell.
+# super().__init__ is called to initialize color and state.
+# They have an extra field called orientation, which is the road direction.
+# In VRoad -1 is for up, 1 is for down.
+# In HRoad -1 is for left, 1 is for right.
 class HRoad(Cell):
     def __init__(self, color, state, orientation):
         super().__init__(color, state)
-        self.orientation = orientation  # orientation == 1 means right, -1 means left
+        self.orientation = orientation
 
-    # we don't draw the whole cell in roads, in order to keep the design intact
+    # We don't draw the whole cell in roads, in order to keep the design intact.
     def draw(self, surface, x, y, scale):
         width = 0.75 * scale
         x_shift = 0.125 * scale
@@ -43,16 +44,16 @@ class HRoad(Cell):
                                                    width,
                                                    height))
 
-    # we copy here cells, as this function returns the constructor, thus new cells generated
+    # We create a copy of self with the same parameters.
     def __copy__(self):
         return HRoad(self.color, self.state, self.orientation)
 
 
-# same with HRoad
+# Same as HRoad
 class VRoad(Cell):
     def __init__(self, color, state, orientation):
         super().__init__(color, state)
-        self.orientation = orientation  # orientation == 1 means down, -1 means up
+        self.orientation = orientation
 
     def draw(self, surface, x, y, scale):
         width = 0.25 * scale
@@ -68,7 +69,7 @@ class VRoad(Cell):
         return VRoad(self.color, self.state, self.orientation)
 
 
-# here we create the grid, it consists of: rows, columns and array of cells filled with cell kind
+# Here we create the grid, it consists of: rows, columns and a 2D array of cells.
 # (normal **OBSTACLE**, VRoad, HRoad)
 class Grid:
     def __init__(self, rows, columns, obstacle):
@@ -78,25 +79,27 @@ class Grid:
         self.cells.fill(obstacle)
         self.n = 0  # pointer to control color randomizer
 
-    # this method calls all cells in the array and allow them to be drawn, with the color initialized in them
-    # the fun part here is if the cell type is normal (OBSTACLE) it will call the draw method in super method,
-    # but if HRoad or VRoad it will call the draw method in them adjusting their sizes and keeping design intact :D
+    # This method loops over all the cells in the array and allow them to be drawn,
+    # with the color initialized in them.
+    # The fun part here is if the cell type is normal (OBSTACLE), it will call the draw method in the Cell class,
+    # but if it is an HRoad or VRoad, it will call the draw method in their class,
+    # adjusting their sizes and keeping their design intact. :D
     def draw(self, surface, scale):
         for y in range(self.rows):
             for x in range(self.columns):
                 self.cells[y][x].draw(surface, x, y, scale)
 
-    # when cell moves, we free its previous cell
+    # When the cell moves, we free its previous cell, making its color white and state 0.
     def remove_car(self, y, x):
         cell = self.cells[y][x]
         if isinstance(cell, (HRoad, VRoad)):
             cell.state = 0
             cell.color = (255, 255, 255)
 
-    # to insert_car a new cell in the grid, by changing its state to 1 and randomly choosing a color for it
+    # Insert a car in the grid, by changing its state to 1 and randomly choosing a color for it
     def insert_car(self, y, x, color=None):
         cell = self.cells[y][x]
-        # a statement to make sure that the selected cell is an empty HRoad or VRoad -- not an OBSTACLE !
+        # A statement to make sure that the selected cell is an empty HRoad or VRoad, not an OBSTACLE!
         if isinstance(cell, (HRoad, VRoad)) and cell.state == 0:
             cell.state = 1
             if color is None:
@@ -112,13 +115,13 @@ class Grid:
                 color = colors[self.n]
             cell.color = color
 
-    # this is for initializing same cell repeatedly and thus keeping its color unchanged case of randomizing
+    # Initializes a copy of the same cell repeatedly.
     def fill(self, element, rows, columns):
         for y in range(rows[0], rows[1] + 1):
             for x in range(columns[0], columns[1] + 1):
                 self.cells[y][x] = element.__copy__()
 
-    # this fills the grid randomly at start, to randomly choose if a certain cell should be filled with a car or not
+    # Randomly fills the grid with cars.
     def fill_with_cars(self):
         for y in range(self.rows):
             for x in range(self.columns):
@@ -126,13 +129,13 @@ class Grid:
                 if alive:
                     self.insert_car(y, x)
 
-    # this fills the grid with black obstacles
+    # Fills the grid with black obstacles
     def clear_grid(self):
         for y in range(self.rows):
             for x in range(self.columns):
                 self.cells[y][x] = Cell(color=(0, 0, 0), state=1)
 
-    # this makes all roads have a state of 0
+    # Makes all roads have a white color and a state of 0.
     def clear_cars(self):
         for y in range(self.rows):
             for x in range(self.columns):
@@ -141,63 +144,66 @@ class Grid:
                     cell.state = 0
                     cell.color = (255, 255, 255)
 
-    # calculating the moves horizontally up to 2 cells ahead
+    # Calculating the horizontal moves of a car, up to 2 cells ahead.
     def h_moves(self, y, x, orientation):
         moves = 0
         for n in range(1, 3):
-            # multiplied by orientation to change the direction
-            # (if it's -1, then stepping back or going other direction)
+            # Multiplied by orientation to change the direction.
+            # If it's -1, then we step back or go in the opposite direction.
             next_x = x + orientation * n
-            # if next car is found within range of visible road, and its state == 1, add it to neighbors
+            # Check if we can take a step.
             if 0 <= next_x < self.columns:
                 cell = self.cells[y][next_x]
+                # If the next cell is occupied, break, else take a step.
                 if cell.state == 1:
                     break
                 moves += 1
-                # Don't move from an HRoad ahead of a VRoad
+                # If we step from an HRoad to a VRoad,
+                # don't take any more steps to avoid unrealistic jumps.
                 if isinstance(cell, VRoad):
                     break
             else:
+                # Take one step and let the algorithm remove the cell at the edge.
                 return 1
         return moves
 
-    # method for actually moving the car to the next state
+    # Method for actually moving the cars to their next position.
     def next_state(self):
         cells = self.cells
-        # we initialized a boolean array to keep track if a car was moved before, by default set to false
+        # We initialize a boolean array to keep track of whether a car was moved before.
+        # By default, all are set to false.
         was_moved = ndarray(shape=cells.shape, dtype=bool)
         was_moved.fill(False)
         r = self.rows
         c = self.columns
         for y in range(r):
             for x in range(c):
-                # we traverse the grid, cell by cell
+                # We traverse the grid, cell by cell.
                 current = cells[y][x]
-                # the car has to be on either roads
+                # The car has to be on either roads.
                 if isinstance(current, (HRoad, VRoad)):
                     o = current.orientation
-                    # if it's a car and wasn't moved before
+                    # Check if it's a car and wasn't moved before.
                     if current.state == 1 and not was_moved[y][x]:
                         next_x, next_y = x, y
-                    # these if, else make the car move one step in its direction
                         if isinstance(current, HRoad):
                             # speed part
                             next_x += o * self.h_moves(y, x, o)
                         else:
                             next_y += o
-                        # if the next step exists on grid and is empty, free the current cell and move the car
-                        # set its boolean to True
+                        # If the next step exists on grid and is empty, free the current cell and move the car/
+                        # Set its move check to True.
                         if 0 <= next_x < c and 0 <= next_y < r:
                             next_cell = cells[next_y][next_x]
                             if next_cell.state == 0:
                                 self.insert_car(next_y, next_x, current.color)
                                 self.remove_car(y, x)
                                 was_moved[next_y][next_x] = True
-                        # if doesn't exist, free the car
+                        # If it doesn't exist, free the car.
                         else:
                             self.remove_car(y, x)
-                    # if the cell is empty make a choice to exist one or not
-                    # with the conditions at the start of the street
+                    # If the cell is empty, make a random choice to exist one or not,
+                    # with the condition being at the start of the street.
                     elif current.state == 0:
                         alive = choice([True, False], p=[0.25, 0.75])
                         if alive:

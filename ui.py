@@ -9,8 +9,6 @@ WIDTH, HEIGHT = 1000, 600
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 GREEN = (0, 100, 0)
-RED = (100, 0, 0)
-BLUE = (0, 0, 100)
 
 GREEN_OBSTACLE = Cell(color=GREEN, state=1)
 BLACK_OBSTACLE = Cell(color=BLACK, state=1)
@@ -18,6 +16,12 @@ LEFT_ROAD = HRoad(color=WHITE, state=0, orientation=-1)
 RIGHT_ROAD = HRoad(color=WHITE, state=0, orientation=1)
 UP_ROAD = VRoad(color=WHITE, state=0, orientation=-1)
 DOWN_ROAD = VRoad(color=WHITE, state=0, orientation=1)
+
+COP_RIGHT = pygame.image.load("cars/cop-right.png")
+AMB_RIGHT = pygame.image.load("cars/amb-right.png")
+TAXI_RIGHT = pygame.image.load("cars/taxi-right.png")
+YELLOW_RIGHT = pygame.image.load("cars/player-right.png")
+BLUE_RIGHT = pygame.image.load("cars/BlueCar-right.png")
 
 grid = Grid(rows=6, columns=10, obstacle=GREEN_OBSTACLE)
 grid.fill(DOWN_ROAD, rows=(0, 1), columns=(1, 1))
