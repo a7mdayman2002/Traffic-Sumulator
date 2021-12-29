@@ -30,7 +30,6 @@ class Cell:
 class HRoad(Cell):
     def __init__(self, color, state, orientation):
         super().__init__(color, state)
-        self.state = state
         self.orientation = orientation  # orientation == 1 means right, -1 means left
 
     # we don't draw the whole cell in roads, in order to keep the design intact
@@ -53,7 +52,6 @@ class HRoad(Cell):
 class VRoad(Cell):
     def __init__(self, color, state, orientation):
         super().__init__(color, state)
-        self.state = state
         self.orientation = orientation  # orientation == 1 means down, -1 means up
 
     def draw(self, surface, x, y, scale):
@@ -98,7 +96,8 @@ class Grid:
     # to insert_car a new cell in the grid, by changing its state to 1 and randomly choosing a color for it
     def insert_car(self, y, x, color=None):
         cell = self.cells[y][x]
-        if cell.state == 0:
+        # a statement to make sure that the selected cell is an empty HRoad or VRoad -- not an OBSTACLE !
+        if isinstance(cell, (HRoad, VRoad)) and cell.state == 0:
             cell.state = 1
             if color is None:
                 self.n = (self.n + 1) % 8
@@ -123,19 +122,17 @@ class Grid:
     def fill_with_cars(self):
         for y in range(self.rows):
             for x in range(self.columns):
-                cell = self.cells[y][x]
                 alive = choice([True, False], p=[0.25, 0.75])
-                # a statement to make sure that the selected cell is either HRoad or VRoad -- not an OBSTACLE !
-                if isinstance(cell, (HRoad, VRoad)) and alive:
+                if alive:
                     self.insert_car(y, x)
 
-    # this fills the grid randomly at start, to randomly choose if a certain cell should be filled with a car or not
+    # this fills the grid with black obstacles
     def clear_grid(self):
         for y in range(self.rows):
             for x in range(self.columns):
                 self.cells[y][x] = Cell(color=(0, 0, 0), state=1)
 
-    # this fills the grid randomly at start, to randomly choose if a certain cell should be filled with a car or not
+    # this makes all roads have a state of 0
     def clear_cars(self):
         for y in range(self.rows):
             for x in range(self.columns):
@@ -144,7 +141,7 @@ class Grid:
                     cell.state = 0
                     cell.color = (255, 255, 255)
 
-    # calculating the moves horizontally 2 cells ahead
+    # calculating the moves horizontally up to 2 cells ahead
     def h_moves(self, y, x, orientation):
         moves = 0
         for n in range(1, 3):
@@ -157,13 +154,14 @@ class Grid:
                 if cell.state == 1:
                     break
                 moves += 1
+                # Don't move from an HRoad ahead of a VRoad
                 if isinstance(cell, VRoad):
                     break
             else:
                 return 1
         return moves
 
-# method for actually moving the car to the next state
+    # method for actually moving the car to the next state
     def next_state(self):
         cells = self.cells
         # we initialized a boolean array to keep track if a car was moved before, by default set to false
@@ -199,7 +197,7 @@ class Grid:
                         else:
                             self.remove_car(y, x)
                     # if the cell is empty make a choice to exist one or not
-                    # with conditions at the start of the street
+                    # with the conditions at the start of the street
                     elif current.state == 0:
                         alive = choice([True, False], p=[0.25, 0.75])
                         if alive:
