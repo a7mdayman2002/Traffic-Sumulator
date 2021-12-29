@@ -23,6 +23,8 @@ TAXI_RIGHT = pygame.image.load("cars/taxi-right.png")
 YELLOW_RIGHT = pygame.image.load("cars/player-right.png")
 BLUE_RIGHT = pygame.image.load("cars/BlueCar-right.png")
 
+COP = pygame.transform.scale(COP_RIGHT,(250,225))
+
 grid = Grid(rows=6, columns=10, obstacle=GREEN_OBSTACLE)
 grid.fill(DOWN_ROAD, rows=(0, 1), columns=(1, 1))
 grid.fill(DOWN_ROAD, rows=(0, 1), columns=(5, 5))
@@ -88,6 +90,7 @@ while run:
     if not pause:
         grid.next_state()
     grid.draw(surface, SCALE)
+    surface.blit(COP,(250,250))
     pygame.display.update()
 
 pygame.quit()
