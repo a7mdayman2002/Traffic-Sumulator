@@ -14,8 +14,10 @@ grid.fill(LEFT_ROAD, rows=(8, 8), columns=(0, 23))
 grid.fill(UP_ROAD, rows=(9, 12), columns=(8, 8))
 grid.fill(UP_ROAD, rows=(9, 12), columns=(19, 19))
 
-pygame.display.set_caption("Traffic Simulator")
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
+ICON = pygame.image.load("assets/icon.png")
+pygame.display.set_caption("Traffic Simulator")
+pygame.display.set_icon(ICON)
 SCALE = grid.get_scale(screen)
 run = True
 pause = True

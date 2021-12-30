@@ -109,11 +109,11 @@ class Grid:
         if isinstance(current, (HRoad, VRoad)) and current.state == 0:
             if image is None:
                 images = [
-                    "cars/ambulance.png",
-                    "cars/blue.png",
-                    "cars/cop.png",
-                    "cars/taxi.png",
-                    "cars/yellow.png"
+                    "assets/ambulance.png",
+                    "assets/blue.png",
+                    "assets/cop.png",
+                    "assets/taxi.png",
+                    "assets/yellow.png"
                 ]
                 image = choice(images, p=[1/17, 5/17, 1/17, 5/17, 5/17])
                 image = pygame.image.load(image)
@@ -145,7 +145,7 @@ class Grid:
             for x in range(self.columns):
                 self.cells[y][x] = Cell(color=(0, 0, 0), state=1)
 
-    # Fills the grid with cars, with probability p.
+    # Fills the grid with assets, with probability p.
     def fill_randomly_with_cars(self, p):
         for y in range(self.rows):
             for x in range(self.columns):
@@ -155,13 +155,13 @@ class Grid:
                 else:
                     self.remove_car(y, x)
 
-    # Removes cars from all roads.
+    # Removes assets from all roads.
     def clear_cars(self):
         for y in range(self.rows):
             for x in range(self.columns):
                 self.remove_car(y, x)
 
-    # The method for actually moving the cars to their next position.
+    # The method for actually moving the assets to their next position.
     def next_state(self):
         # Calculating the horizontal moves of a car, up to 2 cells ahead.
         def h_moves(r, c, orientation):
